@@ -5,6 +5,8 @@ services:
     build: .
     volumes:
       - bash_history:/root/.bash_history
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./app:/app
     privileged: true
 volumes:
   bash_history:

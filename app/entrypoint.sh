@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -Euo pipefail
 
+CONTAINER_INDEX=""
+while true; do
+  CONTAINER_INDEX=$(curl -f --max-time 1 -s --unix-socket /run/docker.sock http://docker/containers/$HOSTNAME/json | jq -r '.Name' | cut -d'_' -f3) || true
+  [[ "$CONTAINER_INDEX" != "" ]] && break
+  sleep 1
+done
+export CONTAINER_INDEX
+
+
+cat /app/torrc.template | sed -e "s/__CONTAINER_INDEX__/${CONTAINER_INDEX}/" > /tmp/torrc
+cat /app/nftables.template | sed -e "s/__CONTAINER_INDEX__/${CONTAINER_INDEX}/" > /tmp/nftables
+
 echo """
 nameserver 127.0.0.1
 """ > /etc/resolv.conf
@@ -12,7 +24,7 @@ nameserver 127.0.0.1
   trap _term TERM
 
   while true; do
-    tor -f /app/torrc &
+    tor -f /tmp/torrc &
     tor_pid=$!
     wait || true
 
@@ -41,7 +53,7 @@ echo "$!" > /tmp/tor.pid
       echo "failures: $failures"
       failures=$((failures + 1))
 
-      if [[ "$failures" -gt 10 ]]; then
+      if [[ "$failures" -gt 15 ]]; then
         failures=0
         kill "$(cat /tmp/tor.pid)"
       fi
@@ -71,7 +83,7 @@ echo "$!" > /tmp/tor.pid
   echo "tor ok"
 )
 
-nft -f /app/nftables
+nft -f /tmp/nftables
 
 (
   lastip=""
