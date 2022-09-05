@@ -5,13 +5,14 @@ case $1 in
   up)
     scale=${2:-1}
     while true; do
-      docker-compose up -t 0 --build --force-recreate --scale app=$scale || true
+      docker-compose up -t 0 --build --force-recreate --scale app="$scale" || true
       sleep 0.1
     done
   ;;
   shell)
+    index=${2:-0}
     while true; do
-      docker-compose exec app bash || true
+      docker-compose exec --index="$index" app bash || true
       echo ""
       echo " -- container exited"
       sleep 1

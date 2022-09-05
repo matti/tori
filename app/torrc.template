@@ -1,8 +1,0 @@
-VirtualAddrNetworkIPv4 10.__CONTAINER_INDEX__.0.0/10
-AutomapHostsOnResolve 1
-TransPort 9040 IsolateClientAddr IsolateClientProtocol IsolateDestAddr IsolateDestPort
-DNSPort 5353
-
-Log [~control]notice warn stdout
-ControlPort localhost:9051
-HardwareAccel 1
