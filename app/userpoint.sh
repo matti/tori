@@ -2,10 +2,13 @@
 set -Euo pipefail
 
 echo "userpoint"
+
+
 (
   failed=0
   while true; do
     if ip=$(curl --max-time 10 -Lsf ip.jes.fi); then
+      echo "$ip"
       if [[ "$failed" == 1 ]]; then
         echo "recovered"
         failed=0
